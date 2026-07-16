@@ -29,6 +29,7 @@ export default function Meals() {
   const [error, setError] = useState(null);
   const [category, setCategory] = useState("All");
   const [feats, setFeats] = useState({});
+  const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
 
@@ -42,6 +43,7 @@ export default function Meals() {
   const clearFilters = () => {
     setCategory("All");
     setFeats({});
+    setSearch("");
   };
 
   function openTodoist(meal) {
@@ -129,10 +131,17 @@ export default function Meals() {
 
   const categories = ["All", ...new Set(meals.map((m) => m.category).filter(Boolean))];
   const activeFeats = FEATURES.filter((f) => feats[f.key]);
-  const anyFilter = category !== "All" || activeFeats.length > 0;
+  const q = search.trim().toLowerCase();
+  const anyFilter = category !== "All" || activeFeats.length > 0 || q !== "";
   const shown = meals
     .filter((m) => category === "All" || m.category === category)
     .filter((m) => activeFeats.every((f) => m[f.key]))
+    .filter(
+      (m) =>
+        !q ||
+        m.name.toLowerCase().includes(q) ||
+        (m.ingredients || "").toLowerCase().includes(q)
+    )
     .sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
   const activeMeals = shown.filter((m) => m.active);
   const pausedMeals = shown.filter((m) => !m.active);
@@ -158,6 +167,18 @@ export default function Meals() {
 
       {/* visual filters */}
       <div className="card space-y-3 !p-3">
+        <div className="relative">
+          <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-stone-400">
+            🔍
+          </span>
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search meals by name or ingredient…"
+            className="w-full rounded-lg border border-stone-300 bg-white py-2 pl-8 pr-3 text-sm"
+          />
+        </div>
         <div>
           <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-stone-400">
             Type
