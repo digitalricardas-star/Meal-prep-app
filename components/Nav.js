@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const links = [
   { href: "/", label: "Today", icon: "🏠" },
@@ -12,6 +12,17 @@ const links = [
 
 export default function Nav() {
   const path = usePathname();
+  const router = useRouter();
+
+  async function signOut() {
+    await fetch("/api/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
+
+  // no nav/sign-out on the login screen itself
+  if (path === "/login") return null;
+
   return (
     <>
       {/* desktop top bar */}
@@ -33,6 +44,12 @@ export default function Nav() {
               </Link>
             ))}
           </nav>
+          <button
+            onClick={signOut}
+            className="ml-auto text-sm text-stone-400 hover:text-stone-700"
+          >
+            Sign out
+          </button>
         </div>
       </header>
       {/* mobile bottom tab bar */}
@@ -50,6 +67,13 @@ export default function Nav() {
               {l.label}
             </Link>
           ))}
+          <button
+            onClick={signOut}
+            className="flex flex-col items-center px-2 py-1 text-[11px] text-stone-500"
+          >
+            <span className="text-lg leading-none">🚪</span>
+            Sign out
+          </button>
         </div>
       </nav>
     </>

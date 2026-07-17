@@ -7,8 +7,12 @@ export function middleware(req) {
   if (!pw) return NextResponse.next();
 
   const { pathname } = req.nextUrl;
-  // the login page and its API must stay reachable
-  if (pathname === "/login" || pathname === "/api/login") {
+  // the login page, login and logout APIs must stay reachable
+  if (
+    pathname === "/login" ||
+    pathname === "/api/login" ||
+    pathname === "/api/logout"
+  ) {
     return NextResponse.next();
   }
 
